@@ -6,19 +6,80 @@ var app = express();
 app.use('/static', express.static("public"));
 app.use(express.urlencoded({extended: true}));
 app.set("view engine", "ejs");
-
+const Todo = require('./models/todo.model');
 const mongoDB = 'mongodb+srv://owenby_evan:mongoDB@cluster0.k7exn7c.mongodb.net/?retryWrites=true&w=majority';
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, "MongoDB connection error: "))
 
+
 app.get('/', function(req, res){
     res.render('todo.ejs');
 })
 
 app.post('/', (req, res) => {
-    console.log(req.body.content)
+    let newTodo = new Todo({
+        todo: req.body.content,
+        done: false
+    })
+    newTodo.save(function(err, todo){
+        if(err){
+            res.json({"Error: ": err})
+        } else {
+            res.json({"Status: ": "Successful", "ObjectId": todo.id})
+        }
+    })
+})
+// Modifies item in DB
+app.put('/', (req, res) => {
+    let id = req.body.check;
+    let err = {}
+    if(typeof id === "string"){
+        Todo.updateOne({_id: id}, {done: true}, function(error){
+            if(error){
+                err = {}
+            }
+        })
+    } else if(typeof id === "object"){
+        id.forEach( ID => {
+            Todo.updateOne({_id: ID}, {done: true}, function(error){
+                if(error){
+                    err = {}
+                }
+            })
+        })
+    }
+    if(err){
+        res.json({"Error: ": err})
+    } else {
+        res.json({"Status: ": "Successful"})
+    }
+})
+
+app.delete('/', (req, res) => {
+    let id = req.body.check;
+    let err = {}
+    if(typeof id === "string"){
+        Todo.deleteOne({_id: id}, function(error){
+            if(error){
+                err = {}
+            }
+        })
+    } else if(typeof id === "object"){
+        id.forEach( ID => {
+            Todo.deleteOne({_id: ID}, function(error){
+                if(error){
+                    err = {}
+                }
+            })
+        })
+    }
+    if(err){
+        res.json({"Error: ": err})
+    } else {
+        res.json({"Status: ": "Successful"})
+    }
 })
 
 app.listen(3000, function(){
