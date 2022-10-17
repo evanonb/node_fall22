@@ -15,7 +15,8 @@
   "bugs": {
     "url": "https://github.com/evanonb/node_fall22/issues"
   },
-  "homepage": "https://github.com/evanonb/node_fall22#readme",
+  /*"homepage": "https://github.com/evanonb/node_fall22#readme",*/
+  "homepage": "https://owenby-node-fall22.onrender.com",
   "dependencies": {
     "axios": "^1.1.2",
     "ejs": "^3.1.8",
